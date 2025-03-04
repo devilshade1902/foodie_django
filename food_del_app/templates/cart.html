@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Your Cart</h2>
+    {% if cart_items %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Menu Item</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.menu_item.name }}</td>
+                <td>₹{{ item.menu_item.price }}</td>
+                <td>
+                    <form method="POST" action="{% url 'update_cart' item.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control d-inline w-50">
+                        <button type="submit" class="btn btn-sm btn-secondary">Update</button>
+                    </form>
+                </td>
+                <td>₹{{ item.total_price }}</td>
+                <td>
+                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="text-end"><strong>Total Amount</strong></td>
+                <td><strong>₹{{ total_amount }}</strong></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <form method="POST" action="{% url 'create_order' %}">
+        {% csrf_token %}
+        <button type="submit" id="checkout-btn" class="btn btn-success">Proceed to Checkout</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning text-center p-4" role="alert">
+        <h4 class="alert-heading">Your cart is empty!</h4>
+        <p>Add some delicious items to your cart and enjoy your meal.</p>
+        <a href="{% url 'restaurant_list' %}" class="btn btn-primary">Browse Menu</a>
+    </div>
+    {% endif %}
+</div>
+
+
+<script>
+    document.getElementById("checkout-btn").addEventListener("click", function () {
+    window.location.href = "razorpay_payment.html";
+});
+</script>
+{% endblock %}

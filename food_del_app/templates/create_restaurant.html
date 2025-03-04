@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.card h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+form label {
+    font-weight: bold;
+    color: #333;
+}
+
+form input,
+form textarea,
+form select {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+}
+
+form  {
+    width: 100%;
+}
+
+</style>
+<div class="container mt-5" style="margin-bottom: 60px;">
+    <h2 class="mb-4">Create Restaurant</h2>
+    <div class="card p-4 shadow">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

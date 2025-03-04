@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4">
+                    <h2 class="text-center text-primary fw-bold">Order Summary</h2>
+                    <hr>
+                    <div class="mb-3">
+                        <p class="mb-2"><i class="bi bi-geo-alt text-danger"></i> 
+                            <strong>Address:</strong> {{ user.address1 }}</p>
+                        <p class="mb-2"><i class="bi bi-credit-card text-success"></i> 
+                            <strong>Payment Method:</strong> Razorpay</p>
+                        <p class="mb-2"><i class="bi bi-cash text-warning"></i> 
+                            <strong>Total Amount:</strong> ₹{{ total_amount }}</p>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="pay-button" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-wallet-fill"></i> Pay ₹{{ total_amount }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ total_amount }}" * 100,
+        "currency": "INR",
+        "name": "Your Company",
+        "description": "Order Payment",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response) {
+            var totalAmount = "{{ total_amount }}";
+            var address = encodeURIComponent("{{ request.user.foodie.address1 }}");
+            window.location.href = "/payment-success/?total_amount=" + totalAmount + "&address=" + address;
+        },
+        "prefill": {
+            "name": "{{ request.user.username }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": {
+            "color": "#F37254"
+        }
+    };
+
+    var rzp1 = new Razorpay(options);
+    document.getElementById('pay-button').onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    };
+</script>
+{% endblock %}

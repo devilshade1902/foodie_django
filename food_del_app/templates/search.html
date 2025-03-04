@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    {% if query %}
+        <h3>Search results for "{{ query }}"</h3>
+        {% if restaurants %}
+            <div class="row">
+                {% for restaurant in restaurants %}
+                <div class="col-md-4 mb-4 d-flex align-items-stretch">
+                    <div class="card restaurant-card h-100">
+                        <img src="{{ restaurant.image_url.url }}" class="card-img-top restaurant-img" alt="{{ restaurant.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ restaurant.name }}</h5>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="{% url 'restaurant_menu' restaurant.id %}" class="btn btn-primary">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:3 %} 
+                    <div class="w-100"></div> 
+                {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No restaurants found matching your search.</p>
+        {% endif %}
+    {% else %}
+        <p>Type something to search for restaurants.</p>
+    {% endif %}
+</div>
+{% endblock %}

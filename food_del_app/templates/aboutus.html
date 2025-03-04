@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">About Us</h2>
+    <div class="card shadow p-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <img src="{% static 'images/aboutus.jpeg' %}" alt="About Us Image" class="img-fluid rounded">
+            </div>
+            <div class="col-md-6">
+                <p class="text-muted">Welcome to <strong>Foodie Express</strong>, your one-stop destination for delicious meals delivered straight to your door! We are passionate about connecting food lovers with their favorite restaurants, making dining more convenient and enjoyable.</p>
+                <p>Our platform ensures a seamless experience, offering a variety of cuisines, easy ordering, and quick delivery. Whether you're craving a quick bite or a gourmet meal, we’ve got you covered.</p>
+                <p><strong>Why Choose Us?</strong></p>
+                <ul>
+                    <li>Wide range of restaurants and cuisines</li>
+                    <li>Fast and reliable delivery</li>
+                    <li>Easy-to-use ordering system</li>
+                    <li>Secure payments and great customer support</li>
+                </ul>
+                <p>Join us on our journey to redefine food delivery and bring happiness, one meal at a time!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

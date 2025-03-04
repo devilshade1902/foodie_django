@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 8px;
+    }
+
+    .btn-success {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #28a745;
+        transform: translateY(-2px);
+    }
+
+    .card-footer a {
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-center bg-success text-white">
+                    Signup
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.as_p }}
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Signup</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Already have an account? <a href="{% url 'login' %}" class="text-success">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

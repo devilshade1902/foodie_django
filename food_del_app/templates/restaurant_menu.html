@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">{{ restaurant.name }}</h2>
+    <p class="text-center text-muted"><strong>Address - </strong>{{ restaurant.address }}</p>
+    <p class="text-center text-muted"><strong>Phone Number -</strong>{{ restaurant.phone_no }}</p>
+    <hr>
+
+    {% if user.is_authenticated and user.is_staff %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Add Menu Item</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Add Menu Item</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for menu in menus %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <img src="{{ menu.image_url.url }}" class="card-img-top" alt="{{ menu.name }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ menu.name }}</h5>
+                    <p class="card-text text-muted">{{ menu.description }}</p>
+                    <p class="text-primary fw-bold">₹{{ menu.price }}</p>
+                    <a href="{% url 'add_to_cart' menu.id %}" class="btn btn-success">Add to Cart</a>
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a href="{% url 'menu_update' menu.id %}" class="btn btn-warning">Update</a>
+                    <a href="{% url 'delete_dish' menu.id %}" class="btn btn-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">No menu items available for this restaurant.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    setTimeout(function() {
+        let alerts = document.querySelectorAll(".alert");
+        alerts.forEach(alert => {
+            alert.style.transition = "opacity 0.5s";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 3000);
+</script>
+
+{% endblock %}

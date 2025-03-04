@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm p-4 border-0" style="max-width: 600px; width: 100%;">
+        <div class="card-body text-center">
+            <h2 class="fw-bold text-success">🎉 Payment Successful!</h2>
+            <p class="text-muted">Thank you for your order. Your food is on the way! 🚀</p>
+
+            <hr class="my-3">
+
+            <h4 class="fw-semibold text-primary">Order Summary</h4>
+            <ul class="list-group list-group-flush text-start mb-4">
+                {% for item in cart_items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ item.menu_item.name }}</span>
+                    <span class="fw-semibold">₹{{ item.menu_item.price }} x {{ item.quantity }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="mb-3">
+                <p class="fs-5"><strong>Total Amount:</strong> <span class="text-success fw-bold">₹{{ total_amount }}</span></p>
+                <p class="fs-6"><strong>Delivery Address:</strong> <span class="text-muted">{{ user.address1 }}</span></p>
+            </div>
+
+            <a href="{% url 'restaurant_list' %}" class="btn btn-outline-primary btn-lg px-4">Back to Restaurants</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
