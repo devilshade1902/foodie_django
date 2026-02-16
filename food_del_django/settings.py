@@ -142,3 +142,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = '/login/'   # Redirect to login page if user is not authenticated
 LOGIN_REDIRECT_URL = '/'  # Redirect after successful login
 LOGOUT_REDIRECT_URL = '/login/'  
+
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'devilshade1902@gmail.com'
+EMAIL_HOST_PASSWORD = 'lcrv xfez jjxi alpx'  # Generate an App Password in Gmail
+DEFAULT_FROM_EMAIL = 'devilshade1902@gmail.com'

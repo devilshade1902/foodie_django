@@ -1,1 +1,9 @@
-<h1>cmam</h1>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="text-danger fw-bold">Payment Failed</h2>
+    <p>Sorry, your payment was not completed. Please try again.</p>
+    <a href="{% url 'cart' %}" class="btn btn-primary">Try Again</a>
+</div>
+{% endblock %}

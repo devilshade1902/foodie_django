@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Your Order History</h2>
+{% if orders %}
+    <ul>
+        {% for order in orders %}
+            <li>
+                <strong>Order ID:</strong> {{ order.id }} <br>
+                <strong>Date:</strong> {{ order.order_date }} <br>
+                <strong>Status:</strong> {{ order.order_status }} <br>
+                <strong>Total Amount:</strong> ₹{{ order.total_amount }} <br>
+                <a href="{% url 'order_details' order.id %}">View Details</a>
+            </li>
+            <hr>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No past orders found.</p>
+{% endif %}
+{% endblock %}

@@ -24,7 +24,6 @@ class Foodie(AbstractUser):
 class Restaurants(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=200)
-    cuisine = models.CharField(max_length=50)
     phone_no = models.CharField(max_length=20)
     image_url = models.ImageField(upload_to='restaurant_imgs/')
     
@@ -69,12 +68,3 @@ class Cart(models.Model):
         return self.menu_item.price * self.quantity
     
     
-
-@login_required
-def add_to_cart(request, menu_id):
-    menu_item = get_object_or_404(Menus, id=menu_id)
-    cart_item, created = Cart.objects.get_or_create(user=request.user, menu_item=menu_item)
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-    return redirect('restaurant_menu', restaurant_id=menu_item.restaurant_id.id)

@@ -6,7 +6,7 @@
     <form method="post">
         {% csrf_token %}
         <div class="mb-3">
-            {{ form.as_p }}  <!-- Renders the form fields -->
+            {{ form.as_p }} 
         </div>
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="{% url 'restaurant_list' %}" class="btn btn-secondary">Cancel</a>

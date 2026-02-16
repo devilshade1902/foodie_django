@@ -53,9 +53,9 @@ class ContactForm(forms.Form):
 class RestaurantForm(forms.ModelForm):
     class Meta:
         model = Restaurants
-        fields = ['name', 'address', 'phone_no','image_url']  # Include the fields you want to update
+        fields = ['name', 'address', 'phone_no','image_url'] 
 
 class DishForm(forms.ModelForm):
     class Meta:
         model = Menus
-        fields = ['name','description', 'price','image_url']  # Include the fields you want to update
+        fields = ['name','description', 'price','image_url']  

@@ -1,5 +1,5 @@
-from .models import Restaurants,Menus,Cart
-from django.urls import reverse_lazy , reverse
+from .models import Restaurants,Menus,Cart,Order_items,Orders
+from django.urls import reverse_lazy , reverse 
 import razorpay
 from django.conf import settings
 from django.views.generic import ListView, UpdateView
@@ -7,12 +7,13 @@ from django.views.generic.edit import CreateView,DeleteView
 from .forms import MenuForm,ContactForm
 from django.shortcuts import render, get_object_or_404,redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .forms import FoodieSignupForm, RestaurantForm
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.utils import timezone
 
 # Create your views here.
 class create_restaurant(CreateView):
@@ -41,10 +42,7 @@ class dish_delete(DeleteView):
 def about(request):
     return render(request, 'aboutus.html')
     
-def restaurant_menu(request,restaurant_id):
-    restaurant = get_object_or_404(Restaurants, id=restaurant_id)
-    menus = Menus.objects.filter(restaurant_id=restaurant)
-    return render(request, 'restaurant_menu.html', {'restaurant': restaurant, 'menus': menus})
+
     
 def restaurant_menu(request, restaurant_id):
     restaurant = get_object_or_404(Restaurants, id=restaurant_id)
@@ -64,11 +62,11 @@ def restaurant_menu(request, restaurant_id):
 class RestaurantUpdateView(UpdateView):
     model = Restaurants
     form_class = RestaurantForm
-    template_name = 'restaurant_update.html'  # Ensure this template exists
+    template_name = 'restaurant_update.html'  
     success_url = '/'
 
 class MenuUpdateView(UpdateView):
-    model = Menus
+    model = Menus   
     form_class = MenuForm
     template_name = 'dish_update.html'
     
@@ -192,21 +190,26 @@ def create_order(request):
         address = request.POST.get('address1', '').strip()
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         cart_items = Cart.objects.filter(user=request.user)
-        total_amount = sum(float(item.total_price()) for item in cart_items)  
+        total_amount = sum(float(item.total_price()) for item in cart_items)
 
         if total_amount <= 0:
             return JsonResponse({"error": "Cart total must be greater than zero."}, status=400)
 
         print("Session data:", request.session.items())
-        
+
         request.session['address1'] = address
-        request.session.modified = True 
-        
-        
+        request.session.modified = True
+
+        # Get user phone number correctly from Foodie model
+        user_phone = request.user.phone_no1 if hasattr(request.user, 'phone_no1') else ''
+
         order_data = {
-            "amount": int(total_amount * 100),  
+            "amount": int(total_amount * 100),
             "currency": "INR",
-            "payment_capture": 1
+            "payment_capture": 1,
+            "notes": {
+                "user_phone": user_phone
+            }
         }
 
         try:
@@ -218,7 +221,8 @@ def create_order(request):
             "order": order,
             "razorpay_key_id": settings.RAZORPAY_KEY_ID,
             "razorpay_order_id": order["id"],
-            "total_amount": total_amount
+            "total_amount": total_amount,
+            "user_phone": user_phone  # Pass correct phone number
         })
 
     return JsonResponse({"error": "Invalid request"}, status=400)
@@ -226,12 +230,63 @@ def create_order(request):
 @csrf_exempt
 def payment_success(request):
     total_amount = request.GET.get('total_amount', 0)
-
     address1 = request.session.get('address1', "Not Provided") 
-    
-    Cart.objects.filter(user=request.user).delete()
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
 
-    return render(request, 'payment_success.html', {
-        'total_amount': total_amount,
-        'address1': address1,
-    })
+    if not cart_items.exists():
+        return render(request, 'payment_success.html', {'total_amount': total_amount, 'address1': address1})
+
+    # Create a new order entry
+    order = Orders.objects.create(
+        user=user,
+        restaurant_id=cart_items.first().menu_item.restaurant_id,  # Assuming all items belong to the same restaurant
+        order_status="Completed",
+        order_date=timezone.now(),
+        total_amount=total_amount
+    )
+
+    # Save order items
+    for cart_item in cart_items:
+        Order_items.objects.create(
+            order_id=order,
+            menu_item_id=cart_item.menu_item,
+            quantity=cart_item.quantity,
+            price=cart_item.menu_item.price
+        )
+
+    # Clear the cart
+    cart_items.delete()
+
+    # Send order confirmation email
+    subject = "Order Confirmation - Thank You for Your Purchase!"
+    message = f"""
+    Hello {user.username},
+
+    Your order has been successfully placed!
+
+    Order Details:
+    - Total Amount: ₹{total_amount}
+    - Delivery Address: {address1}
+    - Order ID: {order.id}
+
+    Thank you for shopping with us!
+    """
+    
+    try:
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+
+    return render(request, 'payment_success.html', {'total_amount': total_amount, 'address1': address1})
+    
+    
+def payment_failed(request):
+    return render(request, "payment_failed.html")
+
+
+@login_required
+def order_history(request):
+    orders = Orders.objects.filter(user=request.user).order_by('-order_date')
+
+    return render(request, 'order_history.html', {'orders': orders})
